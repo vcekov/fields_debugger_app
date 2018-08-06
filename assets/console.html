@@ -1,0 +1,48 @@
+<style>
+  body { font-family: system-ui; background-color: #444; color: #fff; padding: 0; margin: 0;}
+  td { border-top: 1px solid #888; border-bottom: 1px solid #888; border-left: none; border-right: none; padding: 5px; margin: 0px; }
+  table { border-collapse: collapse; }
+
+  .circle { border-radius: 10px; width: 14px; height: 14px; cursor: pointer;}
+    .circle.enabled { background-color: #00aa00; }
+    .circle.disabled { background-color: #ff3333; }
+
+  .eye { width: 16px; height: 16px; cursor: pointer; }
+    .eye.visible { opacity: 0.8; }
+    .eye.hidden { opacity: 0.2; }
+
+  .name { font-weight: bold; background-color: #666; }
+
+  .label { max-width: 200px; }
+    .label span { border: none; outline: none; }
+
+  .option-buttons { white-space: nowrap; }
+
+  .disabler, .hider { width: 16px; max-width: 16px;}
+
+  .has-options { visibility: visible; }
+    .has-options button { color: #fff; background-color: #666; border-radius: 4px; cursor: pointer; outline: none; border: 1px solid transparent;}
+    .has-options button:hover { background-color: #777; }
+
+  .no-options { visibility: hidden; }
+
+  .options-title { margin-bottom: 10px; color: white; font-weight: bold; padding: 5px 0; }
+
+  .options-subtitle { margin-bottom: 10px; }
+
+  .section-holder { background-color: #555; padding: 20px; min-width: 200px;}
+
+  .options-table { min-width: 300px;}
+
+  .fields-table, .options-table { width: 100%; }
+  .options-placeholder { text-align: center; color: #999; margin-top: 100px;}
+</style>
+
+<table style="border-collapse: separate; width:100%; height: 100%">
+  <tr>
+    <td class="section-holder" valign=top><section id=el_fields></section></td>
+    <td class="section-holder options" valign=top><section id=el_fields_options><div class="options-placeholder">Options section</div></section></td>
+  </tr>
+</table>
+
+<script src='./console.js'></script>

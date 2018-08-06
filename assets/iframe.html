@@ -1,0 +1,21 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- http://garden.zendesk.com -->
+  <link rel="stylesheet" href="https://assets.zendesk.com/apps/sdk-assets/css/1/zendesk_garden.css" type="text/css">
+</head>
+<body>
+  <button id="openInWindow" style="padding:5px">Open console</button>
+  <!-- https://github.com/zendesk/zendesk_app_framework_sdk -->
+  <script type="text/javascript" src="https://assets.zendesk.com/apps/sdk/2.0/zaf_sdk.js"></script>
+  <script>
+    // Initialise the Zendesk JavaScript API client
+    // https://developer.zendesk.com/apps/docs/apps-v2
+    var client = ZAFClient.init();
+    client.invoke('resize', { width: '100%', height: '100px' });
+    openInWindow.onclick = function() {
+      window.open('./console.html', 'console', 'width=1100,height=800');
+    };
+  </script>
+</body>
+</html>
