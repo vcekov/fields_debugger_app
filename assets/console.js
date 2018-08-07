@@ -10,94 +10,91 @@ const eyeSVG =
 
 const client = opener.client;
 
-// origGet = client.get;
-//
-// client.get = function(...args) {
-//   const firstArg = args[0];
-//   console.log('firstArg', firstArg);
-//   if (firstArg.indexOf('ticketFields:priority') > -1) debugger;
-//   return origGet.apply(this, args);
-// }
+let fieldsManager;
+let optionManager;
+let optionValuesManager;
+let optionGroupsManager;
 
-async function getFields() {
-  const { ticketFields } = await client.get('ticketFields');
-  buildAllFields(ticketFields);
-}
+class FieldsManager {
+  async getFields() {
+    const { ticketFields } = await client.get('ticketFields');
+    this.fields = ticketFields;
+    this.buildAllFields();
+  }
 
-function renderField(field) {
-  const name = field.name;
-  console.log(field);
-  return `
-    <tr id="${name}">
-      <td class="name">${name}</td>
-      <td class="label"><span contenteditable=true oninput="onLabelChange('${name}', this.innerHTML)">${field.label}</span></td>
-      <td class="disabler"><div class="circle ${field.isEnabled ? 'enabled' : 'disabled'}" onclick="toggleEnable('${name}', this)"></div></td>
-      <td class="hider"><div class="eye ${field.isVisible ? 'visible' : 'hidden'}" onclick="toggleVisibility('${name}', this)">${eyeSVG}</div></td>
-      <td>
-        <div class="option-buttons ${field.hasOptions ? 'has-options' : 'no-options'}">
-          <button onclick="showOptionsFor('${name}', '${field.label}')">O</button>
-          <button onclick="showOptionValuesFor('${name}', '${field.label}')">OValues</button>
-          <button onclick="showOptionGroupsFor('${name}', '${field.label}')">OGroups</button>
-        </div>
-      </td>
-    </tr>
-  `;
-}
+  renderAllFields(fields) {
+    return `
+      <div class="options-title">Fields</div>
+      <table class="fields-table">
+        ${fields.map(this.renderField, this).join('')}
+      </table>`;
+  }
 
-function showOptionsFor(fieldName, fieldLabel) {
-  optionManager.getOptionsForAField(fieldName, fieldLabel);
-}
-function showOptionValuesFor(fieldName, fieldLabel) {
-  optionValuesManager.getOptionsForAField(fieldName, fieldLabel);
-}
-function showOptionGroupsFor(fieldName, fieldLabel) {
-  optionGroupsManager.getOptionsForAField(fieldName, fieldLabel);
-}
+  renderField(field) {
+    const name = field.name;
+    return `
+      <tr id="${name}">
+        <td class="name">${name}</td>
+        <td class="label"><span contenteditable=true oninput="fieldsManager.onLabelChange('${name}', this.innerHTML)">${field.label}</span></td>
+        <td class="disabler"><div class="circle ${field.isEnabled ? 'enabled' : 'disabled'}" onclick="toggleEnable('${name}', this)"></div></td>
+        <td class="hider"><div class="eye ${field.isVisible ? 'visible' : 'hidden'}" onclick="toggleVisibility('${name}', this)">${eyeSVG}</div></td>
+        <td>
+          <div class="option-buttons ${field.hasOptions ? 'has-options' : 'no-options'}">
+            <button onclick="fieldsManager.showOptionsFor('${name}', '${field.label}')">O</button>
+            <button onclick="fieldsManager.showOptionValuesFor('${name}', '${field.label}')">OValues</button>
+            <button onclick="fieldsManager.showOptionGroupsFor('${name}', '${field.label}')">OGroups</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
 
-function onLabelChange(fieldName, value) {
-  client.set(`ticketFields:${fieldName}.label`, value);
-}
+  showOptionsFor(fieldName, fieldLabel) {
+    optionManager.getOptionsForAField(fieldName, fieldLabel);
+  }
+  showOptionValuesFor(fieldName, fieldLabel) {
+    optionValuesManager.getOptionsForAField(fieldName, fieldLabel);
+  }
+  showOptionGroupsFor(fieldName, fieldLabel) {
+    optionGroupsManager.getOptionsForAField(fieldName, fieldLabel);
+  }
 
-async function toggleEnable(fieldName, el) {
-  const isEnabledKey = `ticketFields:${fieldName}.isEnabled`;
-  let isEnabled = (await client.get(isEnabledKey))[isEnabledKey];
-  const command = isEnabled ? 'disable' : 'enable';
-  await client.invoke(`ticketFields:${fieldName}.${command}`);
-  isEnabled = (await client.get(isEnabledKey))[isEnabledKey];
-  el.classList.remove('disabled');
-  el.classList.remove('enabled');
-  el.classList.add(isEnabled ? 'enabled' : 'disabled');
-}
+  onLabelChange(fieldName, value) {
+    client.set(`ticketFields:${fieldName}.label`, value);
+  }
 
-async function toggleVisibility(fieldName, el) {
-  const isVisibleKey = `ticketFields:${fieldName}.isVisible`;
-  let isVisible = (await client.get(isVisibleKey))[isVisibleKey];
-  console.log('isVisible', isVisible);
-  const command = isVisible ? 'hide' : 'show';
-  console.log('command', `ticketFields:${fieldName}.${command}`);
-  await client.invoke(`ticketFields:${fieldName}.${command}`);
-  isVisible = (await client.get(isVisibleKey))[isVisibleKey];
-  el.classList.remove('hidden');
-  el.classList.remove('visible');
-  el.classList.add(isVisible ? 'visible' : 'hidden');
-}
+  async toggleEnable(fieldName, el) {
+    const isEnabledKey = `ticketFields:${fieldName}.isEnabled`;
+    let isEnabled = (await client.get(isEnabledKey))[isEnabledKey];
+    const command = isEnabled ? 'disable' : 'enable';
+    await client.invoke(`ticketFields:${fieldName}.${command}`);
+    isEnabled = (await client.get(isEnabledKey))[isEnabledKey];
+    el.classList.remove('disabled');
+    el.classList.remove('enabled');
+    el.classList.add(isEnabled ? 'enabled' : 'disabled');
+  }
 
-function renderAllFields(fields) {
-  return `
-    <div class="options-title">Fields</div>
-    <table class="fields-table">
-      ${fields.map(renderField).join('')}
-    </table>`;
-}
+  async toggleVisibility(fieldName, el) {
+    const isVisibleKey = `ticketFields:${fieldName}.isVisible`;
+    let isVisible = (await client.get(isVisibleKey))[isVisibleKey];
+    const command = isVisible ? 'hide' : 'show';
+    await client.invoke(`ticketFields:${fieldName}.${command}`);
+    isVisible = (await client.get(isVisibleKey))[isVisibleKey];
+    el.classList.remove('hidden');
+    el.classList.remove('visible');
+    el.classList.add(isVisible ? 'visible' : 'hidden');
+  }
 
-function buildAllFields(fields) {
-  const systemFields = fields.filter(field => field.type === 'built-in');
-  const customFields = fields.filter(field => field.type !== 'built-in');
-  const allFields = [...systemFields, ...customFields];
-  document.getElementById('el_fields').innerHTML = renderAllFields(allFields);
+  buildAllFields() {
+    const systemFields = this.fields.filter(field => field.type === 'built-in');
+    const customFields = this.fields.filter(field => field.type !== 'built-in');
+    const allFields = [...systemFields, ...customFields];
+    document.getElementById('el_fields').innerHTML = this.renderAllFields(allFields);
+  }
 }
 
-getFields();
+fieldsManager = new FieldsManager();
+fieldsManager.getFields();
 
 // ---------------------------------------------------------------
 // OPTIONS
@@ -113,7 +110,6 @@ class OptionManager {
     this.fieldName = fieldName;
     this.fieldLabel = fieldLabel;
     const data = await client.get(`ticketFields:${this.fieldName}.${this.key}`);
-    console.log('all options', data[`ticketFields:${this.fieldName}.${this.key}`]);
     this.buildAllOptions(data[`ticketFields:${this.fieldName}.${this.key}`]);
   }
 
@@ -170,6 +166,6 @@ class OptionManager {
   }
 }
 
-window.optionManager = new OptionManager('options', 'optionManager');
-window.optionValuesManager = new OptionManager('optionValues', 'optionValuesManager');
-window.optionGroupsManager = new OptionManager('optionGroups', 'optionGroupsManager');
+optionManager = new OptionManager('options', 'optionManager');
+optionValuesManager = new OptionManager('optionValues', 'optionValuesManager');
+optionGroupsManager = new OptionManager('optionGroups', 'optionGroupsManager');
