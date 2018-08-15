@@ -36,8 +36,8 @@ class FieldsManager {
       <tr id="${name}">
         <td class="name">${name}</td>
         <td class="label"><span contenteditable=true oninput="fieldsManager.onLabelChange('${name}', this.innerHTML)">${field.label}</span></td>
-        <td class="disabler"><div class="circle ${field.isEnabled ? 'enabled' : 'disabled'}" onclick="toggleEnable('${name}', this)"></div></td>
-        <td class="hider"><div class="eye ${field.isVisible ? 'visible' : 'hidden'}" onclick="toggleVisibility('${name}', this)">${eyeSVG}</div></td>
+        <td class="disabler"><div class="circle ${field.isEnabled ? 'enabled' : 'disabled'}" onclick="fieldsManager.toggleEnable('${name}', this)"></div></td>
+        <td class="hider"><div class="eye ${field.isVisible ? 'visible' : 'hidden'}" onclick="fieldsManager.toggleVisibility('${name}', this)">${eyeSVG}</div></td>
         <td>
           <div class="option-buttons ${field.hasOptions ? 'has-options' : 'no-options'}">
             <button onclick="fieldsManager.showOptionsFor('${name}', '${field.label}')">O</button>
